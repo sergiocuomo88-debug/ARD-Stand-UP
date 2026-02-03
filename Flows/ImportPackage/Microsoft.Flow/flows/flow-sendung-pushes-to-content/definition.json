@@ -1,0 +1,138 @@
+{
+  "name": "flow-sendung-pushes-to-content",
+  "id": "/providers/Microsoft.Flow/flows/flow-sendung-pushes-to-content",
+  "type": "Microsoft.Flow/flows",
+  "properties": {
+    "apiId": "/providers/Microsoft.PowerApps/apis/shared_logicflows",
+    "displayName": "Sync Plattform-Freigaben (Sendung → Content)",
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "Wenn_Sendung_geändert_wird": {
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 5
+          },
+          "splitOn": "@triggerOutputs()?['body/value']",
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "GetOnUpdatedItems"
+            },
+            "parameters": {
+              "dataset": "https://wdr.sharepoint.com/teams/ARDStand-UpO365",
+              "table": "08c76ffb-e10b-4158-92b5-73a509a221cc"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Variable_PlattformFreigaben": {
+          "runAfter": {},
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varPlattformFreigaben",
+                "type": "array",
+                "value": "@triggerOutputs()?['body/field_18']"
+              }
+            ]
+          }
+        },
+        "Bedingung_-_Hat_Plattform_Freigaben": {
+          "runAfter": {
+            "Variable_PlattformFreigaben": ["Succeeded"]
+          },
+          "type": "Condition",
+          "expression": {
+            "not": {
+              "equals": [
+                "@variables('varPlattformFreigaben')",
+                "@null"
+              ]
+            }
+          },
+          "actions": {
+            "Get_verknüpfte_ContentElemente": {
+              "runAfter": {},
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "GetItems"
+                },
+                "parameters": {
+                  "dataset": "https://wdr.sharepoint.com/teams/ARDStand-UpO365",
+                  "table": "6e406f83-7400-4568-88d3-25469885a7da",
+                  "$filter": "Folge/Id eq @{triggerOutputs()?['body/ID']}"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Für_jedes_ContentElement": {
+              "foreach": "@outputs('Get_verknüpfte_ContentElemente')?['body/value']",
+              "runAfter": {
+                "Get_verknüpfte_ContentElemente": ["Succeeded"]
+              },
+              "type": "Foreach",
+              "actions": {
+                "Update_Plattform_Freigaben": {
+                  "runAfter": {},
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "PatchItem"
+                    },
+                    "parameters": {
+                      "dataset": "https://wdr.sharepoint.com/teams/ARDStand-UpO365",
+                      "table": "6e406f83-7400-4568-88d3-25469885a7da",
+                      "id": "@items('Für_jedes_ContentElement')?['ID']",
+                      "item/PlattformFreigaben": "@variables('varPlattformFreigaben')"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              },
+              "runtimeConfiguration": {
+                "concurrency": {
+                  "repetitions": 5
+                }
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          }
+        }
+      },
+      "outputs": {}
+    },
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "connectionName": "sharepointonline",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+        "tier": "NotSpecified"
+      }
+    },
+    "flowFailureAlertSubscribed": true
+  }
+}
