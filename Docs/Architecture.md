@@ -47,6 +47,11 @@ LRA-Content → Scoopa → SharePoint "Sendungen"
 - Aktion: Überträgt Plattform-Freigaben auf alle verknüpften Content-Elemente
 - Ermöglicht Filterung im Contentverzeichnis nach Plattform (z.B. nur YouTube)
 
+### 6. Sync Plattform-Freigaben (Content ← Sendung) ✨ NEU
+- Trigger: Contentverzeichnis erstellt/geändert
+- Aktion: Holt Plattform-Freigaben von der verknüpften Sendung
+- Stellt sicher, dass neue Content-Elemente sofort die korrekten Freigaben haben
+
 ## Bekannte Limitationen
 
 - Power Automate: Max 60+ Actions → Komplexitätsgrenze erreicht
