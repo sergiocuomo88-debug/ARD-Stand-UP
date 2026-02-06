@@ -64,3 +64,4 @@ YT-Studio,YT_x002d_Studio,Text,False,False,,,,Benutzerdefinierte Spalten,False,2
 YT-Thumbnail A,FB_x002d_Thumbnail,Thumbnail,False,False,,,,Benutzerdefinierte Spalten,False,,,
 YT-Thumbnail B,YT_x002d_ThumbnailB,Thumbnail,False,False,,,,Benutzerdefinierte Spalten,False,,,
 YT-Video/Reel,YT_x002d_Video_x002f_Reel,Text,False,False,,,,Benutzerdefinierte Spalten,False,255,,
+Plattform-Freigaben,PlattformFreigaben,MultiChoice,False,False,▶ YouTube | 💬 Facebook | 📷 Instagram | ❗ Siehe Hinweisfeld | TikTok 💃,Synchronisiert von der verknüpften Sendung per Flow,,Benutzerdefinierte Spalten,False,,,
